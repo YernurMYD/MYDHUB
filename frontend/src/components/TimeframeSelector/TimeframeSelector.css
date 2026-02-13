@@ -1,0 +1,51 @@
+.timeframe-selector {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.timeframe-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin: 0;
+}
+
+.timeframe-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.timeframe-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  background: white;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.timeframe-button:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+.timeframe-button.active {
+  background: #667eea;
+  border-color: #667eea;
+  color: white;
+}
+
+.timeframe-button.active:hover {
+  background: #5568d3;
+  border-color: #5568d3;
+}
