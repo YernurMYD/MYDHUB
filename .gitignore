@@ -36,3 +36,23 @@ yarn-error.log*
 
 # Logs
 *.log
+
+# Binary documents
+*.docx
+*.doc
+*.xlsx
+*.xls
+
+# One-off diagnostic/deployment scripts (contain hardcoded IPs or are single-use)
+diagnose_server.ps1
+fix_server.ps1
+check_mosquitto_config.ps1
+check_mqtt_connection.ps1
+create_config_via_ssh.ps1
+copy_config_to_router.ps1
+test_mqtt_receive.ps1
+VERIFY_ROUTER_CONFIG.sh
+
+# Internal context files
+PROJECT_CONTEXT.md
+ARCHITECTURE.md
