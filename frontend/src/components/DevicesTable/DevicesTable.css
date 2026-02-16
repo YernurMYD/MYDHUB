@@ -221,3 +221,100 @@
   color: #9ca3af;
   font-size: 0.875rem;
 }
+
+/* ── Пагинация ──────────────────────────────────────────────────────── */
+
+.devices-table-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0 0;
+  margin-top: 4px;
+  border-top: 1px solid #f3f4f6;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pagination__total {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.pagination__controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pagination__btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  color: #374151;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.pagination__btn:hover:not(:disabled):not(.pagination__btn--active) {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.pagination__btn--active {
+  background: #009FD7;
+  border-color: #009FD7;
+  color: #fff;
+  font-weight: 600;
+}
+
+.pagination__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination__btn--arrow {
+  color: #6b7280;
+}
+
+.pagination__btn--arrow svg {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pagination__size {
+  display: flex;
+  align-items: center;
+}
+
+.pagination__size-select {
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  color: #374151;
+  background: #fff;
+  cursor: pointer;
+  outline: none;
+}
+
+.pagination__size-select:focus {
+  border-color: #009FD7;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+@media (max-width: 640px) {
+  .devices-table-pagination {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+}

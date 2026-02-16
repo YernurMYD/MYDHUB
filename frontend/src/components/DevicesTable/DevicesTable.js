@@ -1,82 +1,54 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
+import { formatMAC, formatLastSeen, getDeviceTypeLabel, getDeviceTypeClass, getRSSIClass } from '../../utils/formatters';
 import './DevicesTable.css';
 
-/**
- * Форматирование MAC адреса
- * @param {string} mac - MAC адрес
- * @returns {string} MAC адрес без маскирования
- */
-const formatMAC = (mac) => {
-  if (!mac) return '—';
-  return mac;
-};
-
-/**
- * Форматирование времени последнего обнаружения
- * @param {string|number} timestamp - Unix timestamp (секунды) или миллисекунды
- * @returns {string} Человеко-читаемое время
- */
-const formatLastSeen = (timestamp) => {
-  if (timestamp === null || timestamp === undefined) return '—';
-  
-  try {
-    let ts = Number(timestamp);
-    if (ts <= 0 || isNaN(ts)) return '—';
-    // JavaScript Date ожидает миллисекунды; backend присылает Unix timestamp в секундах
-    if (ts < 1e12) ts = ts * 1000;
-    const date = new Date(ts);
-    const now = new Date();
-    const diffMs = now - date;
-    const diffSec = Math.floor(diffMs / 1000);
-    const diffMin = Math.floor(diffSec / 60);
-    const diffHour = Math.floor(diffMin / 60);
-
-    if (diffSec < 60) {
-      return `${diffSec} сек назад`;
-    } else if (diffMin < 60) {
-      return `${diffMin} мин назад`;
-    } else if (diffHour < 24) {
-      return `${diffHour} ч назад`;
-    } else {
-      return date.toLocaleDateString('ru-RU', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    }
-  } catch (error) {
-    return '—';
-  }
-};
-
-/**
- * Человекочитаемые названия типов устройств
- */
-const DEVICE_TYPE_LABELS = {
-  smartphone: 'Смартфон',
-  tablet: 'Планшет',
-  laptop: 'Ноутбук',
-  smartwatch: 'Часы',
-  iot: 'IoT',
-  other: 'Другое',
-};
-
-/**
- * Получить подпись для device_type
- */
-const getDeviceTypeLabel = (type) => DEVICE_TYPE_LABELS[type] || type || '—';
-
-/**
- * CSS-класс для бейджа типа устройства
- */
-const getDeviceTypeClass = (type) => {
-  if (!type) return 'other';
-  return type;
-};
+const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
 const DevicesTable = ({ devices }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const totalItems = devices?.length || 0;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  const paginatedDevices = useMemo(() => {
+    if (!devices || devices.length === 0) return [];
+    const start = (safeCurrentPage - 1) * pageSize;
+    return devices.slice(start, start + pageSize);
+  }, [devices, safeCurrentPage, pageSize]);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const handlePageSizeChange = (e) => {
+    const newSize = Number(e.target.value);
+    setPageSize(newSize);
+    setCurrentPage(1);
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      let start = Math.max(1, safeCurrentPage - 2);
+      let end = Math.min(totalPages, start + maxVisible - 1);
+      if (end - start < maxVisible - 1) {
+        start = Math.max(1, end - maxVisible + 1);
+      }
+      for (let i = start; i <= end; i++) pages.push(i);
+    }
+
+    return pages;
+  };
+
   if (!devices || devices.length === 0) {
     return (
       <div className="devices-table-container">
@@ -89,7 +61,7 @@ const DevicesTable = ({ devices }) => {
     <div className="devices-table-container">
       <div className="devices-table-header">
         <h3 className="devices-table-title">Обнаруженные устройства</h3>
-        <div className="devices-table-count">{devices.length} устройств</div>
+        <div className="devices-table-count">{totalItems} устройств</div>
       </div>
       <div className="devices-table-wrapper">
         <table className="devices-table">
@@ -105,7 +77,7 @@ const DevicesTable = ({ devices }) => {
             </tr>
           </thead>
           <tbody>
-            {devices.map((device, index) => (
+            {paginatedDevices.map((device, index) => (
               <tr key={device.mac || index}>
                 <td className="mac-cell">{formatMAC(device.mac)}</td>
                 <td className="rssi-cell">
@@ -143,19 +115,63 @@ const DevicesTable = ({ devices }) => {
           </tbody>
         </table>
       </div>
+
+      {/* Пагинация */}
+      <div className="devices-table-pagination">
+        <div className="pagination__total">
+          Всего {totalItems} записей
+        </div>
+
+        <div className="pagination__controls">
+          <button
+            className="pagination__btn pagination__btn--arrow"
+            onClick={() => handlePageChange(safeCurrentPage - 1)}
+            disabled={safeCurrentPage <= 1}
+            title="Предыдущая"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+
+          {getPageNumbers().map((page) => (
+            <button
+              key={page}
+              className={`pagination__btn ${page === safeCurrentPage ? 'pagination__btn--active' : ''}`}
+              onClick={() => handlePageChange(page)}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            className="pagination__btn pagination__btn--arrow"
+            onClick={() => handlePageChange(safeCurrentPage + 1)}
+            disabled={safeCurrentPage >= totalPages}
+            title="Следующая"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="pagination__size">
+          <select
+            className="pagination__size-select"
+            value={pageSize}
+            onChange={handlePageSizeChange}
+          >
+            {PAGE_SIZE_OPTIONS.map((size) => (
+              <option key={size} value={size}>
+                {size} / стр.
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
     </div>
   );
-};
-
-/**
- * Определение класса для RSSI (для цветовой индикации)
- */
-const getRSSIClass = (rssi) => {
-  if (rssi === null || rssi === undefined) return 'unknown';
-  if (rssi >= -50) return 'excellent';
-  if (rssi >= -60) return 'good';
-  if (rssi >= -70) return 'fair';
-  return 'poor';
 };
 
 export default DevicesTable;

@@ -104,7 +104,7 @@ const RSSIChart = ({ data, timeframe = '1h' }) => {
             stroke="#6b7280"
           />
           <Tooltip content={<CustomTooltip />} />
-          <Line type="monotone" dataKey="count" stroke="#667eea" strokeWidth={2} dot={false} />
+          <Line type="monotone" dataKey="count" stroke="#009FD7" strokeWidth={2} dot={false} />
         </LineChart>
       </ResponsiveContainer>
     </div>

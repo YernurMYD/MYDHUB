@@ -90,4 +90,18 @@ export const getDevices = async () => {
   }
 };
 
+/**
+ * Статистика системы (для определения статуса роутера)
+ * @returns {Promise<Object>} Общая статистика
+ */
+export const getStatistics = async () => {
+  try {
+    const response = await apiClient.get('/statistics');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching statistics:', error);
+    throw error;
+  }
+};
+
 export default apiClient;
