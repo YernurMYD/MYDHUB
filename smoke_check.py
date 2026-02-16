@@ -205,14 +205,14 @@ def main():
         
         print(f"  Типы устройств в списке: {device_types}")
         
-        allowed_types = ["smartphone", "laptop"]
+        allowed_types = ["smartphone", "laptop", "tablet", "smartwatch"]
         other_types = [dt for dt in device_types.keys() if dt not in allowed_types]
         
         if other_types:
-            print(f"  ⚠ В списке есть устройства типа 'other': {device_types.get('other', 0)}")
-            print(f"    Это нормально, если фильтр работает корректно (только smartphone/laptop)")
+            print(f"  В списке есть неразрешённые типы: {other_types}")
+            print(f"    Это нормально, если фильтр работает корректно (разрешены: {allowed_types})")
         else:
-            print("  ✓ В списке только разрешенные типы устройств")
+            print("  В списке только разрешенные типы устройств")
     else:
         print("  Фильтрация выключена - все устройства должны быть в списке")
     

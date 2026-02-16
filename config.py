@@ -19,4 +19,4 @@ MAX_TIMESTAMPS = 1000  # Максимальное количество врем�
 
 # Настройки фильтрации устройств
 ENABLE_DEVICE_FILTERING = os.getenv("ENABLE_DEVICE_FILTERING", "False").lower() == "true"
-ALLOWED_DEVICE_TYPES = ["smartphone", "laptop"]  # Типы устройств, которые сохраняются
+ALLOWED_DEVICE_TYPES = ["smartphone", "laptop", "tablet", "smartwatch"]  # Типы устройств, которые сохраняются

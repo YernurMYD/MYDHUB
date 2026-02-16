@@ -34,14 +34,14 @@ function formatTooltipLabel(unixSec, timeframe) {
 }
 
 /**
- * Описание интервала агрегации для подзаголовка.
+ * Описание интервала для подзаголовка.
  */
 const bucketLabels = {
-  '1h': 'По 10 минут',
-  '6h': 'По 15 минут',
-  '12h': 'По 30 минут',
-  '1d': 'По 1 часу',
-  '30d': 'По 1 дню',
+  '1h': 'Каждый снимок роутера (~10 мин)',
+  '6h': 'Каждый снимок роутера (~10 мин)',
+  '12h': 'Каждый снимок роутера (~10 мин)',
+  '1d': 'Каждый снимок роутера (~10 мин)',
+  '30d': 'Максимум за день',
 };
 
 const RSSIChart = ({ data, timeframe = '1h' }) => {
@@ -82,7 +82,7 @@ const RSSIChart = ({ data, timeframe = '1h' }) => {
     <div className="rssi-chart-container">
       <div className="rssi-chart-header">
         <h3 className="rssi-chart-title">Уникальные устройства во времени</h3>
-        <p className="rssi-chart-subtitle">{subtitle}: количество устройств, активных в каждом интервале (last_seen)</p>
+        <p className="rssi-chart-subtitle">{subtitle}</p>
       </div>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>

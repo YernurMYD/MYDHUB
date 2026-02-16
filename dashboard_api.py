@@ -273,20 +273,21 @@ def get_realtime_stats():
 
 
 def _parse_timeframe(tf: str):
-    """Парсит timeframe 1h|12h|1d|30d -> (seconds, bucket_sec, label).
-    Размер бакета подобран так, чтобы на графике было 6-24 точек."""
+    """Парсит timeframe -> (seconds, bucket_sec, label).
+    bucket_sec=0 означает «каждый снимок как точка» (без агрегации).
+    Для 30d бакет = 1 день, внутри берётся MAX."""
     tf = (tf or "1h").strip().lower()
     if tf == "1h":
-        return 3600, 600, "1h"       # 6 точек по 10 мин
+        return 3600, 0, "1h"
     if tf == "6h":
-        return 21600, 900, "6h"      # 24 точки по 15 мин
+        return 21600, 0, "6h"
     if tf == "12h":
-        return 43200, 1800, "12h"    # 24 точки по 30 мин
+        return 43200, 0, "12h"
     if tf == "1d":
-        return 86400, 3600, "1d"     # 24 точки по 1 часу
+        return 86400, 0, "1d"
     if tf == "30d":
-        return 2592000, 86400, "30d" # 30 точек по 1 дню
-    return 3600, 600, "1h"
+        return 2592000, 86400, "30d"
+    return 3600, 0, "1h"
 
 
 @app.route('/api/stats/summary', methods=['GET'])
@@ -371,54 +372,31 @@ def _devices_timeseries_impl(timeframe_str: str):
     timeframe_sec, bucket_sec, label = _parse_timeframe(timeframe_str)
 
     now_ts = int(time.time())
-    end_ts = now_ts
-    start_ts = end_ts - timeframe_sec
+    start_ts = now_ts - timeframe_sec
 
-    start_bucket = (start_ts // bucket_sec) * bucket_sec
-    end_bucket = (end_ts // bucket_sec) * bucket_sec
+    # Берём реальные снимки из истории
+    snapshots = [
+        s for s in storage.snapshot_history
+        if s["t"] >= start_ts
+    ]
 
-    # ── Строим бакеты ──
-    bucket_starts = []
-    t = start_bucket
-    while t <= end_bucket:
-        bucket_starts.append(t)
-        t += bucket_sec
+    if bucket_sec == 0:
+        # Без агрегации — каждый снимок как отдельная точка
+        points = snapshots
+    else:
+        # Агрегация: MAX по бакету (для 30d)
+        buckets = {}
+        for s in snapshots:
+            b = (s["t"] // bucket_sec) * bucket_sec
+            if b not in buckets or s["count"] > buckets[b]:
+                buckets[b] = s["count"]
+        points = [{"t": b, "count": c} for b, c in sorted(buckets.items())]
 
-    # Берём ВСЕ устройства (devices dict — уникальны по MAC, без дупликатов)
-    devices = storage.get_devices()
-
-    # Для каждого бакета считаем устройства, которые были «активны» в этом интервале.
-    # Устройство считается активным в бакете [b, b+bucket_sec), если:
-    #   first_seen < b + bucket_sec  И  last_seen >= b
-    # Т.е. оно появилось до конца бакета и ещё не исчезло к его началу.
-    points = []
-    last_known = 0
-    for b in bucket_starts:
-        bucket_end = b + bucket_sec
-        count = 0
-        for d in devices:
-            fs = int(d.get("first_seen", 0) or 0)
-            ls = int(d.get("last_seen", 0) or 0)
-            if ls <= 0:
-                continue
-            if fs < bucket_end and ls >= b:
-                count += 1
-
-        if count > 0:
-            last_known = count
-        else:
-            # Forward-fill: пока нет новых данных, держим последнее
-            # известное значение (роутер шлёт раз в 10 мин, между
-            # отправками устройства никуда не исчезают)
-            count = last_known
-
-        points.append({"t": b, "count": count})
-
-    logger.info("devices_timeseries timeframe=%s bucket_sec=%s points=%s", label, bucket_sec, len(points))
+    logger.info("devices_timeseries timeframe=%s points=%s", label, len(points))
     return jsonify({
         "timeframe": label,
         "start_ts": start_ts,
-        "end_ts": end_ts,
+        "end_ts": now_ts,
         "bucket_sec": bucket_sec,
         "points": points,
     })

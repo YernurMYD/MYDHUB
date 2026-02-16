@@ -53,8 +53,11 @@
 
 .devices-table th:nth-child(1) { text-align: left; }   /* MAC адрес */
 .devices-table th:nth-child(2) { text-align: center; } /* RSSI */
-.devices-table th:nth-child(3) { text-align: left; }   /* Последнее обнаружение */
-.devices-table th:nth-child(4) { text-align: center; } /* Random MAC */
+.devices-table th:nth-child(3) { text-align: left; }   /* Производитель */
+.devices-table th:nth-child(4) { text-align: center; } /* Тип */
+.devices-table th:nth-child(5) { text-align: left; }   /* Бренд */
+.devices-table th:nth-child(6) { text-align: left; }   /* Последнее обнаружение */
+.devices-table th:nth-child(7) { text-align: center; } /* Random MAC */
 
 .devices-table tbody tr {
   border-bottom: 1px solid #e5e7eb;
@@ -148,6 +151,68 @@
 .flag-badge.static {
   background: #d1fae5;
   color: #065f46;
+}
+
+/* ── Колонка производителя ─────────────────────────────────────────── */
+
+.vendor-cell {
+  font-size: 0.8125rem;
+  color: #374151;
+  white-space: nowrap;
+}
+
+/* ── Колонка типа устройства ──────────────────────────────────────── */
+
+.device-type-cell {
+  text-align: center;
+}
+
+.type-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.type-badge.type-smartphone {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.type-badge.type-tablet {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.type-badge.type-laptop {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.type-badge.type-smartwatch {
+  background: #fce7f3;
+  color: #9d174d;
+}
+
+.type-badge.type-iot {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.type-badge.type-other {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* ── Колонка бренда ───────────────────────────────────────────────── */
+
+.device-brand-cell {
+  font-size: 0.8125rem;
+  color: #374151;
+  text-transform: capitalize;
+  white-space: nowrap;
 }
 
 .devices-table-empty {

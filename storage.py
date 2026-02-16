@@ -42,6 +42,8 @@ class WiFiDataStorage:
         self.peak_snapshot_count: int = 0
         # Количество уникальных устройств в последнем снимке
         self.last_snapshot_count: int = 0
+        # История снимков: [{t, count}, ...] для графика
+        self.snapshot_history: deque = deque(maxlen=5000)
     
     def add_data(self, data: List[Dict]) -> None:
         """
@@ -148,6 +150,17 @@ class WiFiDataStorage:
             self.last_snapshot_count = batch_unique_count
             if batch_unique_count > self.peak_snapshot_count:
                 self.peak_snapshot_count = batch_unique_count
+            
+            # Используем оригинальный timestamp роутера (из данных),
+            # а не серверное время — иначе буферизованные снимки
+            # получат одинаковый timestamp при досылке.
+            snapshot_ts = max(
+                (int(item.get("t", 0) or 0) for item in data),
+                default=0,
+            )
+            if snapshot_ts <= 0:
+                snapshot_ts = now_ts
+            self.snapshot_history.append({"t": snapshot_ts, "count": batch_unique_count})
     
     def get_devices(self, limit: Optional[int] = None) -> List[Dict]:
         """
@@ -287,6 +300,7 @@ class WiFiDataStorage:
         with self._lock:
             self.devices.clear()
             self.timestamps.clear()
+            self.snapshot_history.clear()
             self.statistics = {
                 "total_messages": 0,
                 "total_devices": 0,

@@ -2,15 +2,13 @@ import React from 'react';
 import './DevicesTable.css';
 
 /**
- * Маскирование MAC адреса
+ * Форматирование MAC адреса
  * @param {string} mac - MAC адрес
- * @returns {string} Маскированный MAC адрес (aa:bb:cc:xx:xx:xx)
+ * @returns {string} MAC адрес без маскирования
  */
-const maskMAC = (mac) => {
+const formatMAC = (mac) => {
   if (!mac) return '—';
-  const parts = mac.split(':');
-  if (parts.length !== 6) return mac;
-  return `${parts[0]}:${parts[1]}:${parts[2]}:xx:xx:xx`;
+  return mac;
 };
 
 /**
@@ -53,6 +51,31 @@ const formatLastSeen = (timestamp) => {
   }
 };
 
+/**
+ * Человекочитаемые названия типов устройств
+ */
+const DEVICE_TYPE_LABELS = {
+  smartphone: 'Смартфон',
+  tablet: 'Планшет',
+  laptop: 'Ноутбук',
+  smartwatch: 'Часы',
+  iot: 'IoT',
+  other: 'Другое',
+};
+
+/**
+ * Получить подпись для device_type
+ */
+const getDeviceTypeLabel = (type) => DEVICE_TYPE_LABELS[type] || type || '—';
+
+/**
+ * CSS-класс для бейджа типа устройства
+ */
+const getDeviceTypeClass = (type) => {
+  if (!type) return 'other';
+  return type;
+};
+
 const DevicesTable = ({ devices }) => {
   if (!devices || devices.length === 0) {
     return (
@@ -74,6 +97,9 @@ const DevicesTable = ({ devices }) => {
             <tr>
               <th>MAC адрес</th>
               <th>RSSI</th>
+              <th>Производитель</th>
+              <th>Тип</th>
+              <th>Бренд</th>
               <th>Последнее обнаружение</th>
               <th>Random MAC</th>
             </tr>
@@ -81,13 +107,24 @@ const DevicesTable = ({ devices }) => {
           <tbody>
             {devices.map((device, index) => (
               <tr key={device.mac || index}>
-                <td className="mac-cell">{maskMAC(device.mac)}</td>
+                <td className="mac-cell">{formatMAC(device.mac)}</td>
                 <td className="rssi-cell">
                   <span className={`rssi-badge rssi-${getRSSIClass(device.rssi)}`}>
                     {device.rssi !== null && device.rssi !== undefined
                       ? `${device.rssi} dBm`
                       : '—'}
                   </span>
+                </td>
+                <td className="vendor-cell">
+                  {device.vendor || '—'}
+                </td>
+                <td className="device-type-cell">
+                  <span className={`type-badge type-${getDeviceTypeClass(device.device_type)}`}>
+                    {getDeviceTypeLabel(device.device_type)}
+                  </span>
+                </td>
+                <td className="device-brand-cell">
+                  {device.device_brand || '—'}
                 </td>
                 <td className="last-seen-cell">
                   {formatLastSeen(device.last_seen || device.timestamp)}
