@@ -1,6 +1,11 @@
 # Скрипт настройки сервера на Windows
 # Запустите в PowerShell от имени администратора
 
+# Переход в корень проекта
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$projectRoot = Split-Path -Parent $scriptDir
+Set-Location $projectRoot
+
 Write-Host "=== Настройка Wi-Fi мониторинга сервера ===" -ForegroundColor Green
 
 # Проверка Python
@@ -15,11 +20,11 @@ try {
 
 # Установка зависимостей
 Write-Host "`nУстановка Python зависимостей..." -ForegroundColor Yellow
-if (Test-Path "requirements.txt") {
-    pip install -r requirements.txt
+if (Test-Path "backend/requirements.txt") {
+    pip install -r backend/requirements.txt
     Write-Host "Зависимости установлены" -ForegroundColor Green
 } else {
-    Write-Host "ОШИБКА: Файл requirements.txt не найден!" -ForegroundColor Red
+    Write-Host "ОШИБКА: Файл backend/requirements.txt не найден!" -ForegroundColor Red
     exit 1
 }
 
@@ -73,6 +78,6 @@ if (-not $firewallRule) {
 
 Write-Host "`n=== Настройка завершена! ===" -ForegroundColor Green
 Write-Host "`nДля запуска сервера выполните:" -ForegroundColor Yellow
-Write-Host "  python main.py" -ForegroundColor Cyan
-Write-Host "`nИли запустите только MQTT Consumer:" -ForegroundColor Yellow
-Write-Host "  python mqtt_consumer.py" -ForegroundColor Cyan
+Write-Host "  python backend/main.py" -ForegroundColor Cyan
+Write-Host "`nИли используйте скрипт:" -ForegroundColor Yellow
+Write-Host "  .\scripts\start_server.ps1" -ForegroundColor Cyan

@@ -1,7 +1,11 @@
 """
 Скрипт для проверки работоспособности системы Wi-Fi мониторинга
 """
+import os
 import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
+
 import socket
 import requests
 from config import (

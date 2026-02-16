@@ -1,6 +1,11 @@
 # Скрипт запуска сервера Wi-Fi мониторинга на Windows
 # Запустите этот файл в PowerShell для старта MQTT Consumer и API
 
+# Переход в корень проекта
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$projectRoot = Split-Path -Parent $scriptDir
+Set-Location $projectRoot
+
 Write-Host "========================================" -ForegroundColor Green
 Write-Host "Запуск сервера Wi-Fi мониторинга" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
@@ -21,7 +26,7 @@ Write-Host "Проверка зависимостей..." -ForegroundColor Yello
 python -m pip show paho-mqtt > $null 2>&1
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Установка зависимостей..." -ForegroundColor Yellow
-    python -m pip install -r requirements.txt
+    python -m pip install -r backend/requirements.txt
     if ($LASTEXITCODE -ne 0) {
         Write-Host "ОШИБКА: Не удалось установить зависимости" -ForegroundColor Red
         exit 1
@@ -38,4 +43,4 @@ Write-Host ""
 Write-Host "Для остановки нажмите Ctrl+C" -ForegroundColor Yellow
 Write-Host ""
 
-python main.py
+python backend/main.py

@@ -239,11 +239,11 @@ def main():
     
     print()
     print("Для повторного запуска:")
-    print("  python smoke_check.py")
+    print("  python tests/smoke_check.py")
     print()
     print("Для включения фильтрации перед запуском:")
     print("  $env:ENABLE_DEVICE_FILTERING='True'")
-    print("  python main.py")
+    print("  python backend/main.py")
     print()
     
     return 0

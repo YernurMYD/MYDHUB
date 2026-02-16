@@ -25,18 +25,62 @@
                                                 └────────────────────────┘
 ```
 
-## Компоненты системы
+## Структура проекта
 
-| Компонент | Описание |
-|-----------|----------|
-| **scanner.sh** | Скрипт на роутере: перехват Probe Request через tcpdump, channel hopping, отправка JSON в MQTT |
-| **MQTT Broker** | Mosquitto -- брокер сообщений между роутером и сервером |
-| **mqtt_consumer.py** | Приём MQTT-сообщений, парсинг двух форматов, обогащение классификацией |
-| **device_classifier.py** | Классификация устройств по OUI (Apple, Samsung, Intel, Dell, HP, Lenovo) |
-| **storage.py** | Потокобезопасное in-memory хранилище с лимитами |
-| **dashboard_api.py** | Flask REST API с CORS для дашборда |
-| **main.py** | Точка входа: запускает MQTT Consumer + API в отдельных потоках |
-| **frontend/** | React-дашборд с графиком, метриками и таблицей устройств |
+```
+MYDhub/
+├── backend/                 # Python backend (Flask API + MQTT Consumer)
+│   ├── main.py              # Точка входа: MQTT Consumer + API
+│   ├── config.py            # Конфигурация (env vars)
+│   ├── mqtt_consumer.py     # Приём и обработка MQTT-сообщений
+│   ├── dashboard_api.py     # Flask REST API
+│   ├── storage.py           # Потокобезопасное in-memory хранилище
+│   ├── device_classifier.py # Классификация устройств по OUI
+│   └── requirements.txt     # Python зависимости
+│
+├── frontend/                # React Dashboard
+│   ├── src/
+│   │   ├── components/      # UI компоненты
+│   │   ├── pages/           # Страницы (Dashboard, Devices, Users, Settings)
+│   │   ├── services/        # API клиент
+│   │   └── utils/           # Утилиты
+│   └── public/              # Статические файлы
+│
+├── router/                  # Конфигурация OpenWrt роутера
+│   ├── scanner.sh           # Скрипт сканирования Wi-Fi
+│   ├── scanner.conf.example # Пример конфигурации
+│   ├── scanner.init         # Init-скрипт для автозапуска (procd)
+│   ├── setup_router.sh      # Автоматическая настройка роутера
+│   ├── diagnose_mqtt.sh     # Диагностика MQTT на роутере
+│   └── README.md            # Инструкция по настройке роутера
+│
+├── scripts/                 # Скрипты запуска и настройки
+│   ├── start_server.ps1     # Запуск сервера (PowerShell)
+│   ├── start_server.bat     # Запуск сервера (CMD)
+│   ├── setup_windows.ps1    # Настройка Windows-окружения
+│   ├── setup_firewall.ps1   # Настройка Windows Firewall
+│   └── start_mosquitto.ps1  # Запуск Mosquitto брокера
+│
+├── tests/                   # Тесты и проверки
+│   ├── check_system.py      # Проверка работоспособности (MQTT + API)
+│   ├── smoke_check.py       # Smoke-тесты (публикация + проверка)
+│   ├── test_mqtt_wifi_probes.py  # Тест приёма MQTT сообщений
+│   └── test_mqtt_receive.py     # Тест MQTT подключения
+│
+├── docs/                    # Документация
+│   ├── SETUP_GUIDE.md       # Подробное руководство по настройке
+│   ├── QUICKSTART.md        # Краткая инструкция
+│   ├── MQTT_BROKER_SETUP.md # Настройка MQTT брокера
+│   ├── HOW_TO_TEST_MQTT.md  # Тестирование MQTT
+│   ├── TESTING.md           # Инструкция по тестированию
+│   ├── TROUBLESHOOTING.md   # Устранение проблем
+│   ├── NETWORK_INFO.md      # Сетевая конфигурация
+│   └── ЗАПУСК_СИСТЕМЫ.md    # Пошаговый чек-лист запуска
+│
+├── .gitignore
+├── .gitattributes
+└── README.md
+```
 
 ## Требования
 
@@ -48,17 +92,17 @@
 
 ## Быстрый старт
 
-> Полная пошаговая инструкция: **[ЗАПУСК_СИСТЕМЫ.md](ЗАПУСК_СИСТЕМЫ.md)** | Подробно: **[SETUP_GUIDE.md](SETUP_GUIDE.md)** | Кратко: **[QUICKSTART.md](QUICKSTART.md)**
+> Подробные инструкции: **[docs/ЗАПУСК_СИСТЕМЫ.md](docs/ЗАПУСК_СИСТЕМЫ.md)** | **[docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md)** | **[docs/QUICKSTART.md](docs/QUICKSTART.md)**
 
 ### 1. Установка зависимостей
 
 ```powershell
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 ```
 
-### 2. Настройка конфигурации (опционально)
+### 2. Конфигурация (опционально)
 
-Переменные окружения (или значения по умолчанию из `config.py`):
+Переменные окружения (или значения по умолчанию из `backend/config.py`):
 
 | Переменная | По умолчанию | Описание |
 |------------|-------------|----------|
@@ -74,10 +118,10 @@ pip install -r requirements.txt
 
 ```powershell
 # Через скрипт
-.\start_server.ps1
+.\scripts\start_server.ps1
 
 # Или напрямую
-python main.py
+python backend/main.py
 ```
 
 ### 4. Запуск фронтенда
@@ -168,9 +212,7 @@ npm start
   "devices": [
     {
       "mac": "00:1e:c2:aa:bb:cc",
-      "m": "00:1e:c2:aa:bb:cc",
       "rssi": -63,
-      "r": -63,
       "first_seen": 1700000000,
       "last_seen": 1700003600,
       "count": 10,
@@ -230,77 +272,19 @@ npm start
 
 **Параметр `timeframe`:** `1h` | `6h` | `12h` | `1d` | `30d`
 
-**Ответ:**
-```json
-{
-  "timeframe": "1h",
-  "count": 28,
-  "start_ts": 1700000000,
-  "end_ts": 1700003600
-}
-```
-
 ### GET /api/stats/devices_timeseries?timeframe=1h
 Временной ряд: количество уникальных устройств по бакетам времени.
 
 **Параметр `timeframe`:** `1h` | `6h` | `12h` | `1d` | `30d`
 
-**Ответ:**
-```json
-{
-  "timeframe": "1h",
-  "start_ts": 1700000000,
-  "end_ts": 1700003600,
-  "bucket_sec": 600,
-  "points": [
-    {"t": 1700000000, "count": 10},
-    {"t": 1700000600, "count": 15}
-  ]
-}
-```
-
 ### POST /api/clear
 Очистка всех данных (только для разработки).
 
-## Примеры использования API
-
-```bash
-# Проверка работоспособности
-curl http://localhost:5000/api/health
-
-# Статистика
-curl http://localhost:5000/api/statistics
-
-# Топ 10 устройств
-curl "http://localhost:5000/api/devices?limit=10"
-
-# Сводка метрик
-curl http://localhost:5000/api/stats/summary
-
-# Временной ряд за 1 час
-curl "http://localhost:5000/api/stats/devices_timeseries?timeframe=1h"
-
-# Данные реального времени
-curl http://localhost:5000/api/stats/realtime
-```
-
-## Настройка роутера
-
-Для настройки роутера OpenWrt см. папку `router/`:
-- `router/README.md` -- инструкции по настройке
-- `router/scanner.conf.example` -- пример конфигурации
-- `router/scanner.init` -- init-скрипт для автозапуска
-- `router/setup_router.sh` -- скрипт автоматической настройки
-
-## Настройка MQTT брокера
-
-См. [MQTT_BROKER_SETUP.md](MQTT_BROKER_SETUP.md)
-
 ## Проверка системы
 
-```bash
-python check_system.py   # Проверка MQTT + API
-python smoke_check.py    # Smoke-тесты (публикация + проверка)
+```powershell
+python tests/check_system.py   # Проверка MQTT + API
+python tests/smoke_check.py    # Smoke-тесты (публикация + проверка)
 ```
 
 ## Особенности
@@ -318,15 +302,14 @@ python smoke_check.py    # Smoke-тесты (публикация + провер
 
 | Документ | Описание |
 |----------|----------|
-| [ЗАПУСК_СИСТЕМЫ.md](ЗАПУСК_СИСТЕМЫ.md) | Пошаговый чек-лист запуска всей системы |
-| [SETUP_GUIDE.md](SETUP_GUIDE.md) | Подробное руководство по настройке |
-| [QUICKSTART.md](QUICKSTART.md) | Краткая инструкция |
-| [FILES_OVERVIEW.md](FILES_OVERVIEW.md) | Обзор всех файлов проекта |
-| [MQTT_BROKER_SETUP.md](MQTT_BROKER_SETUP.md) | Настройка MQTT брокера |
-| [HOW_TO_TEST_MQTT.md](HOW_TO_TEST_MQTT.md) | Тестирование MQTT |
-| [TESTING.md](TESTING.md) | Инструкция по тестированию |
-| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Устранение проблем |
-| [NETWORK_INFO.md](NETWORK_INFO.md) | Сетевая конфигурация |
+| [docs/ЗАПУСК_СИСТЕМЫ.md](docs/ЗАПУСК_СИСТЕМЫ.md) | Пошаговый чек-лист запуска всей системы |
+| [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md) | Подробное руководство по настройке |
+| [docs/QUICKSTART.md](docs/QUICKSTART.md) | Краткая инструкция |
+| [docs/MQTT_BROKER_SETUP.md](docs/MQTT_BROKER_SETUP.md) | Настройка MQTT брокера |
+| [docs/HOW_TO_TEST_MQTT.md](docs/HOW_TO_TEST_MQTT.md) | Тестирование MQTT |
+| [docs/TESTING.md](docs/TESTING.md) | Инструкция по тестированию |
+| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Устранение проблем |
+| [docs/NETWORK_INFO.md](docs/NETWORK_INFO.md) | Сетевая конфигурация |
 | [router/README.md](router/README.md) | Настройка роутера |
 | [frontend/INTEGRATION.md](frontend/INTEGRATION.md) | Интеграция фронтенда с бэкендом |
 
