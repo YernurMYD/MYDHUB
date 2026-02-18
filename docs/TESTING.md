@@ -4,7 +4,7 @@
 
 ```powershell
 # Убедитесь, что MQTT брокер (Mosquitto) запущен
-python main.py
+python backend/main.py
 ```
 
 Ожидаемый вывод:
@@ -22,7 +22,7 @@ API запущен на http://0.0.0.0:5000
 В другом терминале:
 
 ```powershell
-python smoke_check.py
+python tests/smoke_check.py
 ```
 
 Скрипт автоматически:
@@ -35,7 +35,7 @@ python smoke_check.py
 ## 3. Проверка всех компонентов
 
 ```powershell
-python check_system.py
+python tests/check_system.py
 ```
 
 Проверяет: MQTT брокер, MQTT подключение, API сервер, API endpoints.
@@ -104,14 +104,14 @@ curl "http://localhost:5000/api/stats/devices_timeseries?timeframe=1h"
 
 **Без фильтрации (по умолчанию):**
 ```powershell
-python main.py
+python backend/main.py
 # Все устройства сохраняются и возвращаются API
 ```
 
 **С фильтрацией:**
 ```powershell
 $env:ENABLE_DEVICE_FILTERING="True"
-python main.py
+python backend/main.py
 # Только smartphone и laptop в API
 ```
 
@@ -158,7 +158,7 @@ npm start
 1. MQTT брокер запущен и доступен?
 2. Логи сервера -- есть ли сообщения о получении данных?
 3. Топик правильный? (`wifi/probes`)
-4. Запустите `smoke_check.py` для тестовой публикации
+4. Запустите `tests/smoke_check.py` для тестовой публикации
 
 ### Поля классификации отсутствуют
 1. Убедитесь, что `device_classifier.py` доступен

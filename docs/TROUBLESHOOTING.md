@@ -41,7 +41,7 @@ logread | grep scanner | tail -20
 |----------|---------|
 | MQTT брокер не слушает | Запустите Mosquitto: `Start-Service mosquitto` |
 | Слушает только на 127.0.0.1 | Настройте `listener 1883 0.0.0.0` в mosquitto.conf |
-| Firewall блокирует | `.\setup_firewall.ps1` (от имени администратора) |
+| Firewall блокирует | `.\scripts\setup_firewall.ps1` (от имени администратора) |
 | Неправильный IP в конфиге | Исправьте `MQTT_HOST` в `/etc/scanner.conf` |
 | Scanner не запущен | `/etc/init.d/scanner restart` |
 
@@ -53,7 +53,7 @@ logread | grep scanner | tail -20
 
 1. **Firewall блокирует порт 1883** (90% случаев)
    ```powershell
-   .\setup_firewall.ps1
+   .\scripts\setup_firewall.ps1
    ```
 
 2. **Mosquitto не настроен на внешние подключения**
@@ -213,9 +213,9 @@ curl http://localhost:5000/api/health
 
 | Проблема | Решение |
 |----------|---------|
-| Сервер не запущен | `python main.py` |
-| Порт занят | Измените `API_PORT` в env или config.py |
-| Ошибка импорта | `pip install -r requirements.txt` |
+| Сервер не запущен | `python backend/main.py` |
+| Порт занят | Измените `API_PORT` в env или `backend/config.py` |
+| Ошибка импорта | `pip install -r backend/requirements.txt` |
 
 ---
 
@@ -238,7 +238,7 @@ curl http://localhost:5000/api/health
    ```
 3. Отправьте тестовые данные:
    ```powershell
-   python smoke_check.py
+   python tests/smoke_check.py
    ```
 
 ---
@@ -315,8 +315,7 @@ timeout 10 tcpdump -i mon0 -e -n -s 256 -c 5 "type mgt subtype probe-req"
 
 ```powershell
 # На Windows PC
-python check_system.py
-.\diagnose_server.ps1
+python tests/check_system.py
 
 # На роутере
 sh /tmp/diagnose_mqtt.sh

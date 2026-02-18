@@ -2,7 +2,7 @@
 
 ## Зачем нужен MQTT брокер
 
-Python-сервер (`main.py`) подключается к MQTT брокеру как **клиент**. Отдельно нужен **брокер** (Mosquitto), который принимает сообщения от scanner на роутере и доставляет их consumer'у.
+Python-сервер (`backend/main.py`) подключается к MQTT брокеру как **клиент**. Отдельно нужен **брокер** (Mosquitto), который принимает сообщения от scanner на роутере и доставляет их consumer'у.
 
 ## Установка
 
@@ -84,7 +84,7 @@ mosquitto_pub -h <IP_Windows_PC> -t test -m "test"
 
 ```powershell
 # Через скрипт (от имени администратора)
-.\setup_firewall.ps1
+.\scripts\setup_firewall.ps1
 
 # Или вручную
 New-NetFirewallRule -DisplayName "MQTT Broker" -Direction Inbound -LocalPort 1883 -Protocol TCP -Action Allow
@@ -97,7 +97,7 @@ New-NetFirewallRule -DisplayName "MQTT Broker" -Direction Inbound -LocalPort 188
 netstat -ano | findstr ":1883"
 
 # 2. Python сервер подключен
-python main.py
+python backend/main.py
 # Должно показать: "Подключено к MQTT брокеру localhost:1883"
 
 # 3. Scanner подключается с роутера

@@ -10,7 +10,7 @@
 │                 │                             │                         │
 │  scanner.sh     │                             │  Mosquitto MQTT Broker  │
 │  tcpdump        │                             │          ↓              │
-│  mosquitto_pub  │                             │  main.py                │
+│  mosquitto_pub  │                             │  backend/main.py        │
 │                 │                             │  ├── MQTT Consumer      │
 │                 │                             │  ├── Device Classifier  │
 │                 │                             │  ├── In-Memory Storage  │
@@ -59,17 +59,17 @@ docker run -d -p 1883:1883 --name mosquitto eclipse-mosquitto
 
 2. Установите зависимости:
    ```powershell
-   pip install -r requirements.txt
+   pip install -r backend/requirements.txt
    ```
 
 3. Или запустите автоматическую настройку:
    ```powershell
-   .\setup_windows.ps1
+   .\scripts\setup_windows.ps1
    ```
 
 ### Шаг 1.3: Конфигурация
 
-Настройки в `config.py` (переопределяются через переменные окружения):
+Настройки в `backend/config.py` (переопределяются через переменные окружения):
 
 | Переменная | По умолчанию | Описание |
 |------------|-------------|----------|
@@ -88,13 +88,13 @@ docker run -d -p 1883:1883 --name mosquitto eclipse-mosquitto
 Для включения фильтрации (только smartphone и laptop):
 ```powershell
 $env:ENABLE_DEVICE_FILTERING="True"
-python main.py
+python backend/main.py
 ```
 
 ### Шаг 1.5: Запуск сервера
 
 ```powershell
-python main.py
+python backend/main.py
 ```
 
 Сервер запустит:
@@ -123,7 +123,7 @@ python main.py
 
 ```powershell
 # Через скрипт (от имени администратора)
-.\setup_firewall.ps1
+.\scripts\setup_firewall.ps1
 
 # Или вручную
 New-NetFirewallRule -DisplayName "MQTT Broker" -Direction Inbound -LocalPort 1883 -Protocol TCP -Action Allow
@@ -242,10 +242,10 @@ REACT_APP_API_URL=http://your-backend-url/api
 
 ```powershell
 # Проверка всех компонентов
-python check_system.py
+python tests/check_system.py
 
 # Smoke-тесты (публикация + проверка API)
-python smoke_check.py
+python tests/smoke_check.py
 ```
 
 ### 4.2: Проверка MQTT

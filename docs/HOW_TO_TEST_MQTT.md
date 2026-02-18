@@ -29,14 +29,14 @@ mosquitto_pub -h <IP_Windows_PC> -t test -m "test from router"
 ## Способ 2: Python-скрипт
 
 ```powershell
-python test_mqtt_receive.py
+python tests/test_mqtt_receive.py
 ```
 
 Затем отправьте сообщение с роутера или из другого терминала.
 
 ## Способ 3: Через основной сервер
 
-Если `main.py` запущен, он автоматически получает сообщения из `wifi/probes`.
+Если `backend/main.py` запущен, он автоматически получает сообщения из `wifi/probes`.
 
 ```powershell
 # Проверка через API
@@ -64,10 +64,10 @@ JSON должен появиться в окне mosquitto_sub.
 
 ```powershell
 # Запустите сервер в одном терминале
-python main.py
+python backend/main.py
 
 # В другом терминале
-python smoke_check.py
+python tests/smoke_check.py
 ```
 
 Скрипт опубликует тестовые данные в оба формата и проверит API.
@@ -79,7 +79,7 @@ python smoke_check.py
 choco install mosquitto
 
 # Или используйте Python-скрипт
-python test_mqtt_receive.py
+python tests/test_mqtt_receive.py
 ```
 
 ## Если сообщения не приходят
@@ -91,7 +91,7 @@ python test_mqtt_receive.py
 
 2. **Firewall настроен?**
    ```powershell
-   .\setup_firewall.ps1
+   .\scripts\setup_firewall.ps1
    ```
 
 3. **Правильный IP в конфиге роутера?**

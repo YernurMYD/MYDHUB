@@ -58,7 +58,8 @@ const RSSIChart = ({ data, timeframe = '1h' }) => {
     .map((p) => ({
       t: p.t,
       count: p.count || 0,
-    }));
+    }))
+    .sort((a, b) => a.t - b.t);
 
   // Кастомный tooltip
   const CustomTooltip = ({ active, payload }) => {

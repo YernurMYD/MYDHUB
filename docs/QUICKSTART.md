@@ -22,18 +22,18 @@ docker run -d -p 1883:1883 --name mosquitto eclipse-mosquitto
 cd c:\Yernur\MYD\integration\MYDhub
 
 # Автоматическая настройка
-.\setup_windows.ps1
+.\scripts\setup_windows.ps1
 
 # Или вручную
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 ```
 
 ### 3. Запуск сервера
 
 ```powershell
-.\start_server.ps1
+.\scripts\start_server.ps1
 # Или:
-python main.py
+python backend/main.py
 ```
 
 Сервер будет доступен на:
@@ -53,7 +53,7 @@ npm start
 ### 5. Проверка
 
 ```powershell
-python check_system.py
+python tests/check_system.py
 
 curl http://localhost:5000/api/health
 curl http://localhost:5000/api/stats/summary
@@ -125,11 +125,11 @@ logread | grep scanner
 ### Данные не приходят
 1. Ping: `ping <IP_PC>` с роутера
 2. MQTT: `mosquitto_pub -h <IP_PC> -t test -m "test"` с роутера
-3. Firewall: `.\setup_firewall.ps1` на PC
+3. Firewall: `.\scripts\setup_firewall.ps1` на PC
 4. Конфиг: `cat /etc/scanner.conf` на роутере
 
 ### API не отвечает
-1. Сервер запущен? `python main.py`
+1. Сервер запущен? `python backend/main.py`
 2. Порт? `netstat -an | findstr 5000`
 3. Логи в консоли
 

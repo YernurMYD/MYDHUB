@@ -381,8 +381,17 @@ def _devices_timeseries_impl(timeframe_str: str):
     ]
 
     if bucket_sec == 0:
-        # Без агрегации — каждый снимок как отдельная точка
-        points = snapshots
+        # Без агрегации — каждый снимок как отдельная точка.
+        # Сортировка по времени (при буферизации роутера порядок поступления != порядок по t).
+        snapshots_sorted = sorted(snapshots, key=lambda s: s["t"])
+        # Дедупликация по t: при совпадении t оставляем точку с макс. count
+        points = []
+        for s in snapshots_sorted:
+            if points and points[-1]["t"] == s["t"]:
+                if s["count"] > points[-1]["count"]:
+                    points[-1] = s
+            else:
+                points.append(s)
     else:
         # Агрегация: MAX по бакету (для 30d)
         buckets = {}
